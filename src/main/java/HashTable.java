@@ -5,7 +5,7 @@ public class HashTable {
 
     private int capacity;
     public final int p = 31, m = 1000000007;
-    private int size = 0;
+    private static int size = 0;
     private double loadFactor;
 
     private HTObject[] hashtable;
@@ -46,9 +46,12 @@ public class HashTable {
         HTObject  htObjectNormal = hashtable[index];
         HTObject  htObjectReverse = hashtable[indexForReverse];
 
+        HTObject ret = null;
+
 
         if (htObjectNormal == null && htObjectReverse == null) {
             hashtable[index] = new HTObject(key, new Node(node.bfunction, node.order));
+            loadFactory();
             return hashtable[index].value;
         }
 
@@ -58,6 +61,7 @@ public class HashTable {
                 for (int i = index; i < hashtable.length; i++) {
                     if (hashtable[i] == null) {
                         hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
+                        loadFactory();
                         return hashtable[i].getValue();
                     }
                 }
@@ -70,6 +74,7 @@ public class HashTable {
                 for (int i = indexForReverse; i < hashtable.length; i++) {
                     if (hashtable[i] == null) {
                         hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
+                        loadFactory();
                         return hashtable[i].getValue();
                     }
                 }
@@ -80,6 +85,11 @@ public class HashTable {
 
 
 
+      return null;
+    }
+
+
+    public void loadFactory(){
         size++;
 
         double loadfactory = (1.0 * size) / capacity;
@@ -87,7 +97,7 @@ public class HashTable {
         if (loadfactory > this.loadFactor)
             resize();
 
-        return null;
+
     }
 
 

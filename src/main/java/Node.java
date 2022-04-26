@@ -11,6 +11,11 @@ public class Node {
         this.bfunction = bfunction;
     }
 
+    public Node(String bfunction){
+        this.bfunction = bfunction;
+    }
+
+
     // Обрезаем строку bfunction
 
     // добвляем в хеш таблицу
