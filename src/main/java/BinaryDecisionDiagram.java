@@ -78,7 +78,7 @@ public class BinaryDecisionDiagram {
         public void BDD_create(String bfunction, String order) {
 
                 StringBuilder buffer_order = new StringBuilder(order);
-                ArrayList<Node> currentStates = new ArrayList<>();
+                 DynamicArray currentStates = new DynamicArray();
                 int maxSize = 100;
 
 
@@ -103,7 +103,7 @@ public class BinaryDecisionDiagram {
                 }
 
                 StringBuilder order_builder = new StringBuilder(order);
-                ArrayList<Node> buffer = new ArrayList<>();
+                DynamicArray buffer = new DynamicArray();
                 hashTable = new HashTable(maxSize);
 
 
