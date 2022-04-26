@@ -32,15 +32,17 @@ public class BinaryDecisionDiagram {
 
         public Node createLeftNode(Node root, HashTable hashTable, String bfunction, String order){
 
-                this.left_bfunction = getDNF(bfunction, Character.toString(order.charAt(0)), 0);
+                if (order.length() > 1)
+                        this.left_bfunction = getDNF(bfunction, Character.toString(order.charAt(0)), 0);
 
                 if (order.length() > 1)
                         root.left = hashTable.insert(random_id, new Node(this.left_bfunction, Character.toString(order.charAt(1))));
-                else
+                else if (order.length() == 1)
                         root.left = hashTable.insert(random_id, new Node(this.left_bfunction, Character.toString(order.charAt(0))));
 
 
-                if (root.left.bfunction.equals("0")) {
+
+                if (root.left.bfunction.equals("0") ) {
                         root.left = zero;
                         return  root.left;
                 }
@@ -52,20 +54,20 @@ public class BinaryDecisionDiagram {
                 return root.left;
         }
         public Node createRightNode(Node root, HashTable hashTable, String bfunction, String order){
-                this.right_bfunction = getDNF(bfunction, Character.toString(order.charAt(0)), 1);
+
+                if (order.length() >= 1)
+                        this.right_bfunction = getDNF(bfunction, Character.toString(order.charAt(0)), 1);
 
                 if (order.length() > 1)
                         root.right = hashTable.insert(random_id, new Node(this.right_bfunction, Character.toString(order.charAt(1))));
-                else
+                else if (order.length() == 1)
                         root.right = hashTable.insert(random_id, new Node(this.right_bfunction, Character.toString(order.charAt(0))));
-
-
 
                 if (root.right.bfunction.equals("0")) {
                         root.right = zero;
                         return root.right;
                 }
-                else if (root.right.bfunction.equals("1")) {
+                else if (root.right.bfunction.equals("1")  || (root.right.bfunction.equals(order) &&  root.right.bfunction.length() == 1)) {
                         root.right = one;
                         return root.right;
                 }
@@ -104,22 +106,52 @@ public class BinaryDecisionDiagram {
                 ArrayList<Node> buffer = new ArrayList<>();
                 hashTable = new HashTable(maxSize);
 
+
+
+
                 for (int i = 0; i < currentStates.size(); i++) {
 
-                        currentStates.get(i).left = createLeftNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
-                        currentStates.get(i).right = createRightNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
 
-                        if (currentStates.get(i).equals("0") || currentStates.get(i).equals("1")) {
+                        if ((currentStates.get(i).bfunction.length() == 1  && currentStates.get(i).bfunction.equals(order))){
+                                currentStates.get(i).left = zero;
+                                currentStates.get(i).right = one;
+                        }
+
+                        if (!(currentStates.get(i).bfunction.equals("0")) && !(currentStates.get(i).bfunction.equals("1")) && (currentStates.get(i).bfunction.length() > 1) && (currentStates.get(i).left == null && currentStates.get(i).right == null)) {
+                                currentStates.get(i).left = createLeftNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
+                                currentStates.get(i).right = createRightNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
+                        }
+
+                        if (   (currentStates.get(i).left.bfunction.equals("0") ||  currentStates.get(i).left.bfunction.equals("1"))
+                                && (!(currentStates.get(i).right.bfunction.equals("0") ||  currentStates.get(i).right.bfunction.equals("1"))))
+                                buffer.add(currentStates.get(i).right);
+
+                        if (   (currentStates.get(i).right.bfunction.equals("0") ||  currentStates.get(i).right.bfunction.equals("1"))
+                                && !(currentStates.get(i).left.bfunction.equals("0") ||  currentStates.get(i).left.bfunction.equals("1")))
+                                buffer.add(currentStates.get(i).left);
+
+                        if ( !(currentStates.get(i).right.bfunction.equals("0") ||  currentStates.get(i).right.bfunction.equals("1"))
+                                && !(currentStates.get(i).left.bfunction.equals("0") ||  currentStates.get(i).left.bfunction.equals("1")))
+                        {
                                 buffer.add(currentStates.get(i).left);
                                 buffer.add(currentStates.get(i).right);
                         }
+
 
                         if (i == currentStates.size() - 1) {
                                 currentStates = buffer;
                                 hashTable = new HashTable(maxSize);
                                 i = 0;
-                                order_builder.deleteCharAt(0);
+
+                                if (order_builder.length() >= 1)
+                                        order_builder.deleteCharAt(0);
+
+                                if (order_builder.length() == 0)
+                                        break;
                         }
+
+                        if (order_builder.equals(""))
+                                break;
                         order = new String(order_builder);
                 }
 
@@ -160,6 +192,135 @@ public class BinaryDecisionDiagram {
 
 
 
+//        public static String getDNF(String bfunction, String order, int side){
+//                int index = 0;
+//                String[] zeroList = new String[]{};
+//                String[] oneList = new String[]{};
+//
+//
+//                if (order.length() > 1 )
+//                        return "Error";
+//                else
+//                {
+//                        if (side == 0) {
+//                                StringBuilder buffer = new StringBuilder();
+//                                zeroList = bfunction.split("\\+");
+//                                zeroList = removeDuplicate(zeroList);
+//                                String result = new String();
+//                                String buffer_string = new String();
+//
+//
+//                                for (String str: zeroList) {
+//                                        if (str.contains("!"+order)  && str.length() == 2) {
+//                                                result = "1";
+//                                        }
+//
+//                                        if (str.contains("!"+order)) {
+//                                                buffer = new StringBuilder(str);
+//                                                int indexOf = buffer.indexOf("!");
+//                                                buffer.deleteCharAt(indexOf);
+//                                                indexOf = buffer.indexOf(order);
+//                                                buffer.deleteCharAt(indexOf);
+//                                                result+=buffer + "+";
+//                                        }
+//
+//                                        if (str.contains(order)){
+//                                                result+="0";
+//                                        }
+//
+//                                        if (!str.contains(order)) {
+//                                                buffer_string = new String(str);
+//                                                result += removeDuplicate(buffer_string.toCharArray()) + "+";
+//                                        }
+//                                }
+//
+//
+//                                if (result.length() > 1){
+//
+//                                        result = removeDuplicate(result.toCharArray());
+//                                        buffer = new StringBuilder(result);
+//
+//
+//                                        for (int i = 0; i < buffer.length(); i++) {
+//                                                if (buffer.charAt(i) == '0') {
+//                                                        buffer.deleteCharAt(i);
+//                                                        i = 0;
+//                                                }
+//                                        }
+//                                        result=new String(buffer);
+//                                }
+//
+//                                StringBuilder n = new StringBuilder(result);
+//                                n.deleteCharAt(n.length()-1);
+//                                result = new String(n);
+//
+//                                if ((result.length() == 0) || (result.length() == 1 && result.contains(order)))
+//                                        result = "0";
+//
+//                                return result;
+//                        }
+//                        if (side == 1){
+//                                        StringBuilder buffer = new StringBuilder();
+//                                        oneList = bfunction.split("\\+");
+//                                        String result = new String();
+//                                        oneList = removeDuplicate(oneList);
+//                                        String buffer_string = new String();
+//
+//                                        for (int i = 0; i < oneList.length; i++) {
+//                                                buffer = new StringBuilder(oneList[i]);
+//
+//                                                int indexOf = -1;
+//
+//                                                if (oneList[i].contains("!"+order))
+//                                                        result = "0";
+//
+//                                                // string without order
+//                                                if (!oneList[i].contains("!") && !oneList[i].contains(order)) {
+//
+//                                                        buffer_string = new String(buffer);
+//
+//                                                        result += removeDuplicate(buffer_string.toCharArray()) + "+";
+//                                                }
+//
+//                                                if (!oneList[i].contains("!") && oneList[i].contains(order)){
+//                                                        indexOf = buffer.indexOf(order);
+//                                                        buffer.deleteCharAt(indexOf);
+//                                                        buffer_string = new String(buffer);
+//
+//                                                        result += removeDuplicate(buffer_string.toCharArray()) + "+";
+//
+//                                                }
+//
+//                                                if (oneList[i].contains("!") && !oneList[i].contains("!" + order)){
+//                                                        indexOf = buffer.indexOf(order);
+//                                                        buffer.deleteCharAt(indexOf);
+//
+//                                                        buffer_string = new String(buffer);
+//
+//                                                        result += removeDuplicate(buffer_string.toCharArray()) + "+";
+//                                                }
+//
+//                                                if (oneList[i].contains(order) && oneList[i].length() == 1)
+//                                                        return "1";
+//
+//
+//                                        }
+//
+//                                        StringBuilder n = new StringBuilder(result);
+//
+//                                        if (n.length() > 0) {
+//                                                n.deleteCharAt(n.length() - 1);
+//                                                result = new String(n);
+//                                        }
+//                                        return result;
+//
+//
+//                        }
+//                }
+//
+//                return null;
+//        }
+
         public static String getDNF(String bfunction, String order, int side){
                 int index = 0;
                 String[] zeroList = new String[]{};
@@ -171,6 +332,10 @@ public class BinaryDecisionDiagram {
                 else
                 {
                         if (side == 0) {
+
+                                if (bfunction.length() == 1 && bfunction.contains(order))
+                                        return "0";
+
                                 StringBuilder buffer = new StringBuilder();
                                 zeroList = bfunction.split("\\+");
                                 zeroList = removeDuplicate(zeroList);
@@ -202,85 +367,106 @@ public class BinaryDecisionDiagram {
                                         }
                                 }
 
+                                if (result.length() == 1 && result.contains("0"))
+                                        return "0";
 
                                 if (result.length() > 1){
 
-                                        result = removeDuplicate(result.toCharArray());
+                                        if (bfunction.length() == 1 && bfunction.contains(order))
+                                                return "1";
+
                                         buffer = new StringBuilder(result);
+                                        if (buffer.indexOf("0") != -1 && buffer.length() > 1) {
+                                                for (int i = 0; i < buffer.length(); ) {
+                                                        if (buffer.charAt(i) == '0') {
+                                                                buffer.deleteCharAt(i);
+                                                                i--;
+                                                        }
+                                                        i++;
+                                                        if (buffer.length() == 1 && buffer.indexOf("0") != -1)
+                                                                return "0";
 
-
-                                        for (int i = 0; i < buffer.length(); i++) {
-                                                if (buffer.charAt(i) == '0') {
-                                                        buffer.deleteCharAt(i);
-                                                        i = 0;
                                                 }
                                         }
+
                                         result=new String(buffer);
                                 }
+
+                                if ((result.length() == 0) || (result.length() == 1 && result.contains(order)))
+                                        return  "0";
+
 
                                 StringBuilder n = new StringBuilder(result);
                                 n.deleteCharAt(n.length()-1);
                                 result = new String(n);
 
-                                if ((result.length() == 0) || (result.length() == 1 && result.contains(order)))
-                                        result = "0";
-
                                 return result;
                         }
                         if (side == 1){
-                                        StringBuilder buffer = new StringBuilder();
-                                        oneList = bfunction.split("\\+");
-                                        String result = new String();
-                                        oneList = removeDuplicate(oneList);
-                                        String buffer_string = new String();
+                                StringBuilder buffer = new StringBuilder();
+                                oneList = bfunction.split("\\+");
+                                String result = new String();
+                                oneList = removeDuplicate(oneList);
+                                String buffer_string = new String();
 
-                                        for (int i = 0; i < oneList.length; i++) {
-                                                buffer = new StringBuilder(oneList[i]);
+                                for (int i = 0; i < oneList.length; i++)
+                                        if (!oneList[i].contains("!") && oneList[i].contains(order) && oneList[i].length() == 1)
+                                                return "1";
 
-                                                int indexOf = -1;
+                                for (int i = 0; i < oneList.length; i++) {
+                                        buffer = new StringBuilder(oneList[i]);
 
-                                                if (oneList[i].contains("!"+order))
-                                                        result = "0";
+                                        int indexOf = -1;
 
-                                                // string without order
-                                                if (!oneList[i].contains("!") && !oneList[i].contains(order)) {
+                                        if (oneList[i].contains("!"+order))
+                                                result = "0";
 
-                                                        buffer_string = new String(buffer);
+                                        // string without order
+                                        if (!oneList[i].contains("!") && !oneList[i].contains(order)) {
 
+                                                buffer_string = new String(buffer);
+
+                                                result += removeDuplicate(buffer_string.toCharArray()) + "+";
+                                        }
+
+                                        if (!oneList[i].contains("!") && oneList[i].contains(order) && oneList[i].length() > 1){
+                                                indexOf = buffer.indexOf(order);
+                                                buffer = new StringBuilder(removeDuplicate(new String(buffer).toCharArray()));
+                                                buffer.deleteCharAt(indexOf);
+                                                buffer_string = new String(buffer);
+
+                                                if (buffer_string.equals(""))
+                                                        result += removeDuplicate(buffer_string.toCharArray());
+                                                else
                                                         result += removeDuplicate(buffer_string.toCharArray()) + "+";
-                                                }
-
-                                                if (!oneList[i].contains("!") && oneList[i].contains(order)){
-                                                        indexOf = buffer.indexOf(order);
-                                                        buffer.deleteCharAt(indexOf);
-                                                        buffer_string = new String(buffer);
-
-                                                        result += removeDuplicate(buffer_string.toCharArray()) + "+";
-
-                                                }
-
-                                                if (oneList[i].contains("!") && !oneList[i].contains("!" + order)){
-                                                        indexOf = buffer.indexOf(order);
-                                                        buffer.deleteCharAt(indexOf);
-
-                                                        buffer_string = new String(buffer);
-
-                                                        result += removeDuplicate(buffer_string.toCharArray()) + "+";
-                                                }
-
-                                                if (oneList[i].contains(order) && oneList[i].length() == 1)
-                                                        return "1";
-
 
                                         }
 
-                                        StringBuilder n = new StringBuilder(result);
+                                        if (!oneList[i].contains("!") && oneList[i].contains(order) && oneList[i].length() == 1)
+                                                return "1";
 
-                                        if (n.length() > 0) {
-                                                n.deleteCharAt(n.length() - 1);
-                                                result = new String(n);
+                                        if (oneList[i].contains("!") && !oneList[i].contains("!" + order)){
+                                                indexOf = buffer.indexOf(order);
+                                                buffer.deleteCharAt(indexOf);
+
+                                                buffer_string = new String(buffer);
+
+                                                result += removeDuplicate(buffer_string.toCharArray()) + "+";
                                         }
-                                        return result;
+
+                                        if (oneList[i].contains(order) && oneList[i].length() == 1)
+                                                result = "1";
+
+
+                                }
+
+                                StringBuilder n = new StringBuilder(result);
+
+                                if (n.length() > 0) {
+                                        n.deleteCharAt(n.length() - 1);
+                                        result = new String(n);
+                                }
+                                return result;
 
 
                         }

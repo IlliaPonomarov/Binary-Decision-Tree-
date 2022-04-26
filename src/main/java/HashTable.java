@@ -52,18 +52,32 @@ public class HashTable {
             return hashtable[index].value;
         }
 
-        else if ( (htObjectNormal != null || htObjectReverse != null)) {
+        if ( (htObjectNormal != null)) {
 
-            if (!htObjectNormal.value.bfunction.equals(node.bfunction) || !htObjectReverse.value.bfunction.equals(node.bfunction)) {
-                for (int i = 0; i < hashtable.length; i++) {
+            if (!htObjectNormal.value.bfunction.equals(node.bfunction)) {
+                for (int i = index; i < hashtable.length; i++) {
                     if (hashtable[i] == null) {
                         hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
                         return hashtable[i].getValue();
                     }
                 }
             }
-            return htObjectNormal.value;
+            return hashtable[index].value;
         }
+
+        if (htObjectReverse!= null){
+            if (!htObjectReverse.value.bfunction.equals(node.bfunction)){
+                for (int i = indexForReverse; i < hashtable.length; i++) {
+                    if (hashtable[i] == null) {
+                        hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
+                        return hashtable[i].getValue();
+                    }
+                }
+            }
+            return hashtable[index].value;
+        }
+
+
 
 
         size++;
@@ -75,6 +89,7 @@ public class HashTable {
 
         return null;
     }
+
 
     public  int hashFunction(String value){
         return hashCode(value) & capacity;
