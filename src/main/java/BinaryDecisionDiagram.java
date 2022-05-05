@@ -1,5 +1,6 @@
 
 import java.util.*;
+import java.math.*;
 
 
 public class BinaryDecisionDiagram {
@@ -15,10 +16,22 @@ public class BinaryDecisionDiagram {
         private int random_id = (int) Math.floor(Math.random() * 400);
 
 
+
+
+        public Node getRoot() {
+                return root;
+        }
+
+
         public BinaryDecisionDiagram(){
 
                 this.root = null;
 
+        }
+
+
+        public int getMemory(){
+                return HashTable.count;
         }
 
         public int BDD_use(String way){
@@ -40,11 +53,11 @@ public class BinaryDecisionDiagram {
                                 current = current.right;
 
                         if (current == zero) {
-                                System.out.println("Result:" + current.bfunction);
+                            //   System.out.println("Result:" + current.bfunction);
                                 return 0;
                         }
                         else if (current == one) {
-                                System.out.println("Result:" + current.bfunction);
+                              //  System.out.println("Result:" + current.bfunction);
                                 return 1;
                         }
 
@@ -57,7 +70,7 @@ public class BinaryDecisionDiagram {
 
         public Node createLeftNode(Node root, HashTable hashTable, String bfunction, String order){
 
-                if (order.length() > 1)
+                if (order.length() >= 1)
                         this.left_bfunction = getDNF(bfunction, Character.toString(order.charAt(0)), 0);
 
                 if (order.length() > 1)
@@ -97,6 +110,7 @@ public class BinaryDecisionDiagram {
                         return root.right;
                 }
 
+
                 return root.right;
         }
 
@@ -104,7 +118,7 @@ public class BinaryDecisionDiagram {
                 this.order = order;
                 StringBuilder buffer_order = new StringBuilder(order);
                 DynamicArray currentStates = new DynamicArray();
-                int maxSize = 100;
+                int maxSize = (int) Math.pow(2, order.length());
 
 
                 if (root == null) {
@@ -134,39 +148,29 @@ public class BinaryDecisionDiagram {
 
 
 
-                for (int i = 0; i < currentStates.size(); i++) {
+                for (int i = 0; i < currentStates.size(); ) {
 
-
-                        if ((currentStates.get(i).bfunction.length() == 1  && currentStates.get(i).bfunction.equals(order))){
-                                currentStates.get(i).left = zero;
-                                currentStates.get(i).right = one;
-                        }
+                        Node test = currentStates.get(i);
+//                        if ((currentStates.get(i).bfunction.equals(order))){
+//                                currentStates.get(i).left = zero;
+//                                currentStates.get(i).right = one;
+//                        }else if (currentStates.get(i).bfunction.equals("!" + order)){
+//                                currentStates.get(i).left = one;
+//                                currentStates.get(i).right = zero;
+//                        }
 
 
                         if (!(currentStates.get(i).bfunction.equals("0")) && !(currentStates.get(i).bfunction.equals("1")) && (currentStates.get(i).left == null && currentStates.get(i).right == null)) {
+
                                 currentStates.get(i).left = createLeftNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
                                 currentStates.get(i).right = createRightNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
+
                                 buffer.add(currentStates.get(i).left);
                                 buffer.add(currentStates.get(i).right);
                         }
 
-//                        if (   (currentStates.get(i).left.bfunction.equals("0") ||  currentStates.get(i).left.bfunction.equals("1"))
-//                                && (!(currentStates.get(i).right.bfunction.equals("0") ||  currentStates.get(i).right.bfunction.equals("1"))))
-//                                buffer.add(currentStates.get(i).right);
-//
-//                        if (   (currentStates.get(i).right.bfunction.equals("0") ||  currentStates.get(i).right.bfunction.equals("1"))
-//                                && !(currentStates.get(i).left.bfunction.equals("0") ||  currentStates.get(i).left.bfunction.equals("1")))
-//                                buffer.add(currentStates.get(i).left);
-//
-//                        if ( !(currentStates.get(i).right.bfunction.equals("0") ||  currentStates.get(i).right.bfunction.equals("1"))
-//                                && !(currentStates.get(i).left.bfunction.equals("0") ||  currentStates.get(i).left.bfunction.equals("1")))
-//                        {
-//                                buffer.add(currentStates.get(i).left);
-//                                buffer.add(currentStates.get(i).right);
-//                        }
 
-
-                        if (i == currentStates.size() - 1) {
+                          if (i == currentStates.size() - 1) {
                                 currentStates = buffer;
                                 hashTable = new HashTable(maxSize);
                                 i = 0;
@@ -176,7 +180,11 @@ public class BinaryDecisionDiagram {
 
                                 if (order_builder.length() == 0)
                                         break;
+
+                                buffer = new DynamicArray();
                         }
+                        else
+                                i++;
 
                         if (order_builder.equals(""))
                                 break;
@@ -188,6 +196,9 @@ public class BinaryDecisionDiagram {
 
         }
 
+        public String getOrder(){
+                return this.order;
+        }
 
 
 //        public static String getDNF(String bfunction, String order, int side){
@@ -335,16 +346,27 @@ public class BinaryDecisionDiagram {
                                 StringBuilder buffer = new StringBuilder();
                                 zeroList = bfunction.split("\\+");
                                 zeroList = removeDuplicate(zeroList);
-                                String result = new String();
-                                String buffer_string = new String();
+                                String result = "";
+                                String buffer_string = "";
 
                                 for (String str: zeroList) {
 
                                         if (str.contains("!"+order) && str.length() == 2)
                                                 return "1";
 
+                                        if (str.contains("!"+order+"+"+order) || str.contains(order+"+"+ "!" + order))
+                                                return "1";
+
+
                                         if (str.contains("!" + order)) {
-                                                str = str.replaceAll("!" + order, "") + "+";
+
+                                                if (str.equals("!"+order))
+                                                        return "1";
+
+                                                str = str.replaceAll("!" + order, "");
+
+
+
                                                 if (str.contains(order))
                                                         continue;
                                                 else
@@ -357,7 +379,15 @@ public class BinaryDecisionDiagram {
 
                                 }
 
-                                if (result.equals(""))
+
+
+
+                                buffer = new StringBuilder(result);
+
+                                if(buffer.lastIndexOf("+") != -1)
+                                        buffer.deleteCharAt(buffer.length()-1);
+
+                                if (result.length() == 0)
                                         return "0";
 
                                 if (result.length() > 1){
@@ -382,20 +412,25 @@ public class BinaryDecisionDiagram {
 
                                 for (String str: oneList) {
 
+
                                         if (str.contains(order) && str.length() == 1)
                                                 return "1";
 
                                         if (str.contains("!" + order))
                                                 continue;
 
-                                        else if (str.contains(order))
-                                                result +=  str.replaceAll(order, "") + "+";
+                                        else if (str.contains(order)) {
+                                                if (str.equals(order))
+                                                        return "1";
+
+                                                result += str.replaceAll(order, "") + "+";
+                                        }
                                         else
                                                 result += str + "+";
                                 }
 
                                 if (result.equals(""))
-                                        return "1";
+                                        return "0";
 
                                 if (result.length() > 1){
                                         result.replace("++", "+");

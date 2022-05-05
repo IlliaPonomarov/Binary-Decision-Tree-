@@ -8,6 +8,8 @@ public class HashTable {
     private static int size = 0;
     private double loadFactor;
 
+    public static int count = 2;
+
     private HTObject[] hashtable;
 
 
@@ -43,6 +45,12 @@ public class HashTable {
         int index = hashFunction(node.bfunction);
         int indexForReverse = hashFunction(reverseString(node.bfunction));
 
+        if (index == hashtable.length)
+            index = 0;
+
+        if (indexForReverse == hashtable.length)
+            indexForReverse = 0;
+
         HTObject  htObjectNormal = hashtable[index];
         HTObject  htObjectReverse = hashtable[indexForReverse];
 
@@ -51,7 +59,11 @@ public class HashTable {
 
         if (htObjectNormal == null && htObjectReverse == null) {
             hashtable[index] = new HTObject(key, new Node(node.bfunction, node.order));
-            loadFactory();
+            Main.MEMORY++;
+            if (index >= hashtable.length - 1 || indexForReverse >= hashtable.length - 1)
+                resize();
+
+
             return hashtable[index].value;
         }
 
@@ -61,7 +73,10 @@ public class HashTable {
                 for (int i = index; i < hashtable.length; i++) {
                     if (hashtable[i] == null) {
                         hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
-                        loadFactory();
+                        Main.MEMORY++;
+                        if (i >= hashtable.length - 1)
+                            resize();;
+
                         return hashtable[i].getValue();
                     }
                 }
@@ -74,12 +89,23 @@ public class HashTable {
                 for (int i = indexForReverse; i < hashtable.length; i++) {
                     if (hashtable[i] == null) {
                         hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
-                        loadFactory();
+                        Main.MEMORY++;
+                        if(i >= hashtable.length - 1)
+                            resize();
                         return hashtable[i].getValue();
                     }
                 }
             }
-            return hashtable[index].value;
+
+
+            size++;
+
+            double loadfactory = (1.0 * size) / capacity;
+
+            if (loadfactory > this.loadFactor)
+                resize();
+
+                         return hashtable[index].value;
         }
 
 
