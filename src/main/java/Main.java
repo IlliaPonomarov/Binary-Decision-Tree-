@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
 
@@ -8,26 +9,23 @@ public class Main {
     public static double TIME_AVERAGE_CREATE = 0;
     public static double TIME_AVERAGE_SEARCH = 0;
     private final static int countOfBDD = 1000;
-    private final static int Generate_COUNT = 100;
-    private final static int HashCode_COUNT = 100;
-
-    //private final static String ALPHABET = "ZYXW";
- //   private final static String ALPHABET = "ZYXWVUTSRQPONMIKJIHGFEDCBA";
-    private final static String ALPHABET = "ABCDEFGHIJKLM";
-
-    private final static int DEFAULT_TEST_COUNT = 100;
+    private static String ORDER = "ABCDEFGHIJKLM";
     private static int failure = 0;
 
-    // 0000|	:!CD+AC+B+ACD:	[1]	[0]
-    //110|	:!AB+!A!C+ABC+!AB+!A!BC:	[1]	[0]
 
     public static void main(String[] args) throws IOException {
-        //!CC!D+A!DD+DB!B!B+D+!BB+!A!C!A+!CD!CD
-        //0000|	:D+B!C!D+!CD+!BD:	[-1]	[0]
+
       BinaryDecisionDiagram binaryDecisionDiagram = new BinaryDecisionDiagram();
 
+        String order = "";
 
-     BDDuse_TEST();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Input your order for generation of random dnf function (Valid values from \"A\" to \"Z\", Example:\"ZBDEKLMN\"): ");
+
+        order = scanner.next();
+        ORDER = order.toUpperCase();
+        BDDuse_TEST();
 
     }
 
@@ -109,12 +107,12 @@ public class Main {
         System.out.println("Count of checked tree : ");
         for (int i = 0; i < countOfBDD; i++) {
             failure = 0;
-            String bFunction = generateDNF(ALPHABET, 10);
+            String bFunction = generateDNF(ORDER, 100);
             BinaryDecisionDiagram tree = new BinaryDecisionDiagram();
 
 
            double startTime = System.currentTimeMillis();
-                 tree.BDD_create(bFunction, ALPHABET);
+                 tree.BDD_create(bFunction, ORDER);
             double endTime = System.currentTimeMillis();
             TIME_AVERAGE_CREATE += ((endTime - startTime) / 1000.00) / countOfBDD;
 
@@ -132,7 +130,7 @@ public class Main {
         System.out.println(sumFailer);
         System.out.println();
 
-        System.out.printf("\nCREATE:\nAverage Time complexity create of one tree: %f s.\nAverage Memory: %.2f\n", TIME_AVERAGE_CREATE, MEMORY_AVERAGE);
+        System.out.printf("\nCREATE:\nAverage Time complexity create of one tree: %f s.\nAverage Memory: %.0f megabyte\n", TIME_AVERAGE_CREATE, MEMORY_AVERAGE);
         System.out.printf("\nSEARCH:\nAverage Time complexity search of one nodes in tree: %f s.\n", TIME_AVERAGE_SEARCH);
 
 
@@ -159,16 +157,17 @@ public class Main {
 
 
             double startTime = System.currentTimeMillis();
-             BDD_USE_result = tree.BDD_use(arguments);
+             BDD_USE_result = tree.BDD_use(tree, arguments);
             double endTime = System.currentTimeMillis();
 
             timeSearchAllElementsTree += (endTime - startTime) / 1000.00;
 
 
 
+            // If we have error during a search.
             if (BDD_USE_result != alter) {
-                System.out.println(arguments + "|\t:" + tree.getRoot().bfunction + ":\t[" +
-                        BDD_USE_result + "]\t[" + alter + "]");
+                System.out.println(arguments + "|\t:" + tree.getRoot().bfunction + ":\tActually: [" +
+                        BDD_USE_result + "]\tExcept: [" + alter + "]");
                 failure++;
               }
             }
