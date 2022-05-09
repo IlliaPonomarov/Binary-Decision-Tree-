@@ -1,4 +1,5 @@
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -40,15 +41,14 @@ public class BinaryDecisionDiagram {
 
         public int BDD_use(BinaryDecisionDiagram binaryDecisionDiagram, String input_values){
 
-            Node current = binaryDecisionDiagram.root;
+                Node current = binaryDecisionDiagram.root;
 
-            if (input_values.length() != this.order.length()) {
-                    System.err.println("Order and Way should be identical.");
-                    return -1;
-            }
+                if (input_values.length() != this.order.length()) {
+                        System.err.println("Order and Way should be identical.");
+                        return -1;
+                }
 
                 for (Character number: input_values.toCharArray()) {
-
 
                         if (number.equals('0'))
                                 current = current.left;
@@ -67,8 +67,12 @@ public class BinaryDecisionDiagram {
                 }
 
 
-            return -1;
+                return -1;
         }
+
+
+
+
 
         //In the function argument, we pass the parent of our vertex (for which we want to create a child),
         // the current hash table (to check for uniqueness), and Order the current order.
@@ -197,7 +201,9 @@ public class BinaryDecisionDiagram {
                         if (!(currentStates.get(i).bfunction.equals("0")) && !(currentStates.get(i).bfunction.equals("1")) && (currentStates.get(i).left == null && currentStates.get(i).right == null)) {
 
                                 currentStates.get(i).left = createLeftNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
+
                                 currentStates.get(i).right = createRightNode(currentStates.get(i), hashTable, currentStates.get(i).bfunction, order);
+
 
                                 //After creating children for these vertices, we add them to the dynamic array too, to repeat the same algorithm.
                                 child.add(currentStates.get(i).left);
@@ -462,6 +468,5 @@ public class BinaryDecisionDiagram {
                 }
                 return str = aListColors.toArray( new String[aListColors.size()] );
         }
-
 
 }

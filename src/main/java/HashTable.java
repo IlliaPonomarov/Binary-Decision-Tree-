@@ -74,21 +74,18 @@ public class HashTable {
 
 
     public Node insert(int key, Node node){
+
+        // We calculate the hash function for a regular string.
         int index = hashFunction(node.bfunction);
-        int indexForReverse = hashFunction(reverseString(node.bfunction));
 
         if (index == hashtable.length)
-            index = 0;
-
-        if (indexForReverse == hashtable.length)
-            indexForReverse = 0;
+            resize();
 
         HTObject  htObjectNormal = hashtable[index];
-        HTObject  htObjectReverse = hashtable[indexForReverse];
-
-        HTObject ret = null;
 
 
+        //If there is no collision,
+        // then we create a new node and add it to the hash table, and return a reference to it.
         if (htObjectNormal == null) {
             hashtable[index] = new HTObject(key, new Node(node.bfunction, node.order));
             Main.MEMORY++;
@@ -102,6 +99,9 @@ public class HashTable {
         if ( (htObjectNormal != null)) {
 
             if (!htObjectNormal.value.bfunction.equals(node.bfunction)) {
+
+                //There is a collision:
+                //2) If the elements are different, then we will go through the table until we find an empty cell.
                 for (int i = index; i < hashtable.length; i++) {
                     if (hashtable[i] == null) {
                         hashtable[i] = new HTObject(key, new Node(node.bfunction, node.order));
@@ -114,11 +114,16 @@ public class HashTable {
                 }
             }
 
+            //There is a collision:
+            //1) If the elements are the same, then we return a link to the top in the hash table.
+
             return hashtable[index].value;
         }
 
 
 
+        ///If loadFactory is greater than 0.75, then the resize() function is called,
+        // which doubles the size of the table.
             size++;
 
             double loadfactory = (1.0 * size) / capacity;
@@ -129,32 +134,6 @@ public class HashTable {
 
 
       return null;
-    }
-
-
-    public void loadFactory(){
-        size++;
-
-        double loadfactory = (1.0 * size) / capacity;
-
-        if (loadfactory > this.loadFactor)
-            resize();
-
-
-    }
-
-
-
-    public String reverseString(String str){
-        char ch;
-        String reverse = new String();
-
-        for (int i = 0; i < str.length(); i++) {
-            ch = str.charAt(i);
-            reverse = ch + reverse;
-        }
-
-        return reverse;
     }
 
     public void resize() {
