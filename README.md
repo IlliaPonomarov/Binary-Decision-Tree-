@@ -1,4 +1,4 @@
-***Binary Decision Diagram?***
+***Binary Decision Diagram***
 
 What is my project about?
 
