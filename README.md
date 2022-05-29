@@ -4,7 +4,7 @@ What is my project about?
 
 I implemented my own algorithm for building a BDD tree in code, using Hash Tables for this.
 
-Why did I decide to implement it?
+**Why did I decide to implement it?**
 
 When I searched for information about BDD trees on the Internet, I did not find more than a single example of the implementation of this tree in Java and other programming languages.
 I became interested in creating my own version of such a tree.
